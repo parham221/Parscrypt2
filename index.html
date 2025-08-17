@@ -4,337 +4,225 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>رمزگذار فارسی پرهام</title>
-
-  <!-- Progressive Web App Meta Tags -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#333333" />
-  <meta name="description" content="ابزار رمزگذاری و رمزگشایی متن فارسی با امکانات بیومتریک، QR، صوت و تاریخچه" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="CryptoParham" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="icon" href="icons/icon-192.png" />
-
+  <meta name="theme-color" content="#333" />
   <style>
-    /* متغیرهای ریشه */
-    :root {
-      --bg-light: #f0f0f0;
-      --bg-dark:  #333333;
-      --text-light: #ffffff;
-      --text-dark:  #000000;
-      --primary-color: #333333;
-      --accent-color: #ff4081;
-    }
-
-    /* تنظیمات اولیه */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0; padding: 0;
-    }
-
     body {
       font-family: sans-serif;
-      background: var(--bg-light);
-      color: var(--text-dark);
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      transition: background .3s, color .3s;
-    }
-    body.dark {
-      background: var(--bg-dark);
-      color: var(--text-light);
-    }
-
-    header {
-      background: var(--primary-color);
-      color: var(--text-light);
-      padding: 1rem;
+      background: #f0f0f0;
       text-align: center;
+      margin: 0;
+      padding: 0;
     }
-
-    main {
-      flex: 1;
-      padding: 1rem;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
     #hamburgerBtn {
-      font-size: 1.5rem;
+      font-size: 24px;
       cursor: pointer;
-      margin: .5rem;
+      margin: 10px;
     }
-
     #mobileNav {
       display: none;
-      background: #dddddd;
-      padding: .5rem;
-      margin-bottom: 1rem;
+      background: #ddd;
+      padding: 10px;
     }
     #mobileNav.open {
       display: block;
     }
-
-    button {
-      padding: .5rem 1rem;
-      margin: .25rem;
-      font-size: 1rem;
-      cursor: pointer;
-      background: var(--accent-color);
-      border: none;
-      color: var(--text-light);
-      border-radius: .25rem;
-    }
-    button:hover {
-      background: #e73370;
-    }
-
-    input, textarea {
-      width: 100%; max-width: 400px;
-      padding: .5rem;
-      margin: .5rem auto;
-      font-size: 1rem;
-      display: block;
-      border: 1px solid #ccc;
-      border-radius: .25rem;
-    }
-    textarea { resize: vertical; }
-
     .section {
-      margin: 1rem auto;
-      max-width: 400px;
-      text-align: center;
+      margin: 20px;
     }
-
-    ul { list-style: none; padding: 0; }
-    ul li {
-      padding: .25rem 0;
-      border-bottom: 1px solid #ccc;
-      text-align: left;
-      word-break: break-all;
+    input, textarea {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
     }
   </style>
 </head>
 <body>
+  <h2>🔐 رمزگذار فارسی پرهام</h2>
 
-  <header>
-    <h1>🔐 رمزگذار فارسی پرهام</h1>
-  </header>
+  <div id="loginSection" class="section">
+    <input type="password" id="passwordInput" placeholder="رمز عبور" />
+    <button onclick="login()">ورود</button>
+    <button onclick="enableBiometric()">فعال‌سازی بیومتریک</button>
+    <button onclick="loginWithBiometric()">ورود با اثر انگشت</button>
+  </div>
 
-  <main>
-    <!-- بخش ورود -->
-    <section id="loginSection" class="section">
-      <input type="password" id="passwordInput" placeholder="رمز عبور" />
-      <button id="loginBtn">ورود</button>
-      <button id="enableBioBtn">فعال‌سازی بیومتریک</button>
-      <button id="bioLoginBtn">ورود با اثر انگشت</button>
-    </section>
+  <div id="mainSection" class="section" style="display:none;">
+    <div id="hamburgerBtn">☰ منو</div>
+    <div id="mobileNav">
+      <button onclick="toggleSection('encode')">رمزگذاری</button>
+      <button onclick="toggleSection('decode')">رمزگشایی</button>
+      <button onclick="toggleSection('settings')">تنظیمات</button>
+      <button onclick="toggleSection('history')">تاریخچه</button>
+    </div>
 
-    <!-- بخش اصلی پس از ورود -->
-    <section id="appSection" class="hidden">
-      <div id="hamburgerBtn" aria-label="باز/بستن منو">☰ منو</div>
-      <nav id="mobileNav" aria-hidden="true">
-        <button data-section="encodeSection">رمزگذاری</button>
-        <button data-section="decodeSection">رمزگشایی</button>
-        <button data-section="settingsSection">تنظیمات</button>
-        <button data-section="historySection">تاریخچه</button>
-      </nav>
+    <div id="encodeSection" style="display:none;">
+      <h3>✍️ رمزگذاری متن</h3>
+      <textarea id="encodeInput" rows="4" placeholder="متن را وارد کنید"></textarea>
+      <button onclick="encodeText()">رمزگذاری</button>
+      <p id="encodeResult"></p>
+    </div>
 
-      <!-- رمزگذاری -->
-      <section id="encodeSection" class="section hidden">
-        <h2>✍️ رمزگذاری متن</h2>
-        <textarea id="encodeInput" rows="4" placeholder="متن را وارد کنید"></textarea>
-        <button id="encodeBtn">رمزگذاری</button>
-        <p id="encodeResult" aria-live="polite"></p>
-      </section>
+    <div id="decodeSection" style="display:none;">
+      <h3>🔓 رمزگشایی متن</h3>
+      <textarea id="decodeInput" rows="4" placeholder="متن رمزگذاری‌شده را وارد کنید"></textarea>
+      <button onclick="decodeText()">رمزگشایی</button>
+      <p id="decodeResult"></p>
+    </div>
 
-      <!-- رمزگشایی -->
-      <section id="decodeSection" class="section hidden">
-        <h2>🔓 رمزگشایی متن</h2>
-        <textarea id="decodeInput" rows="4" placeholder="متن رمزگذاری‌شده"></textarea>
-        <button id="decodeBtn">رمزگشایی</button>
-        <p id="decodeResult" aria-live="polite"></p>
-      </section>
+    <div id="settings" style="display:none;">
+      <h3>⚙️ تنظیمات</h3>
+      <button onclick="toggleDark()">تغییر حالت تاریک</button>
+      <button onclick="generateQR()">ساخت QR</button>
+      <button onclick="playSound()">پخش صوت</button>
+    </div>
 
-      <!-- تنظیمات -->
-      <section id="settingsSection" class="section hidden">
-        <h2>⚙️ تنظیمات</h2>
-        <button id="darkModeBtn">تغییر حالت تاریک</button>
-        <button id="qrBtn">ساخت QR</button>
-        <button id="soundBtn">پخش صوت</button>
-      </section>
-
-      <!-- تاریخچه -->
-      <section id="historySection" class="section hidden">
-        <h2>📜 تاریخچه</h2>
-        <ul id="historyList"></ul>
-        <button id="clearHistoryBtn">پاک‌سازی تاریخچه</button>
-      </section>
-    </section>
-  </main>
+    <div id="history" style="display:none;">
+      <h3>📜 تاریخچه رمزگذاری</h3>
+      <ul id="historyList"></ul>
+      <button onclick="clearHistory()">پاک‌سازی تاریخچه</button>
+    </div>
+  </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let logged = false;
-      let historyList = JSON.parse(localStorage.getItem('cryptoHistory') || '[]');
+    let logged = false;
+    let history = [];
 
-      // نمایش بخش‌ها
-      function showSection(sectionId) {
-        const all = [
-          'loginSection','appSection',
-          'encodeSection','decodeSection',
-          'settingsSection','historySection'
-        ];
-        all.forEach(id => {
-          document.getElementById(id)
-            .classList.toggle('hidden', id !== sectionId);
-        });
-        if (['encodeSection','decodeSection','settingsSection','historySection']
-            .includes(sectionId)) {
-          document.getElementById('appSection')
-            .classList.remove('hidden');
-        }
+    function login() {
+      const pass = document.getElementById("passwordInput").value;
+      if (pass === "parham123") {
+        logged = true;
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("mainSection").style.display = "block";
+      } else {
+        alert("رمز اشتباه است");
       }
+    }
 
-      // بروزرسانی تاریخچه
-      function updateHistory() {
-        const ul = document.getElementById('historyList');
-        ul.innerHTML = '';
-        historyList.slice(-10).reverse().forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = item;
-          ul.appendChild(li);
-        });
-        localStorage.setItem('cryptoHistory', JSON.stringify(historyList));
+    async function enableBiometric() {
+      if (!window.PublicKeyCredential) {
+        alert("مرورگر شما از بیومتریک پشتیبانی نمی‌کند");
+        return;
       }
-      updateHistory();
-
-      // ورود با رمز
-      document.getElementById('loginBtn').onclick = () => {
-        const pw = document.getElementById('passwordInput').value;
-        if (pw === 'parham123') {
-          logged = true;
-          showSection('encodeSection');
-        } else {
-          alert('رمز اشتباه است');
-        }
-      };
-
-      // پشتیبانی بیومتریک
-      const supportsWebAuthn = (
-        window.PublicKeyCredential &&
-        typeof window.PublicKeyCredential === 'function'
-      );
-
-      document.getElementById('enableBioBtn').onclick = async () => {
-        if (!supportsWebAuthn) {
-          return alert('مرورگر شما از بیومتریک پشتیبانی نمی‌کند');
-        }
-        try {
-          await navigator.credentials.create({ publicKey: {
+      try {
+        await navigator.credentials.create({
+          publicKey: {
             challenge: new Uint8Array(32),
-            rp: { name: 'Parham Crypto' },
-            user: { id: new Uint8Array(16), name: 'parham', displayName: 'Parham' },
-            pubKeyCredParams: [{ type:'public-key', alg:-7 }],
-            authenticatorSelection: { authenticatorAttachment:'platform' },
-            timeout:60000, attestation:'none'
-          }});
-          alert('بیومتریک فعال شد');
-        } catch (err) {
-          alert('خطا در فعال‌سازی بیومتریک: ' + err.message);
-        }
-      };
-
-      document.getElementById('bioLoginBtn').onclick = async () => {
-        if (!supportsWebAuthn) {
-          return alert('بیومتریک در دسترس نیست');
-        }
-        try {
-          await navigator.credentials.get({ publicKey: {
-            challenge: new Uint8Array(32),
-            timeout:60000, userVerification:'required'
-          }});
-          logged = true;
-          showSection('encodeSection');
-        } catch (err) {
-          alert('ورود بیومتریک ناموفق: ' + err.message);
-        }
-      };
-
-      // منوی همبرگری
-      document.getElementById('hamburgerBtn').onclick = () => {
-        document.getElementById('mobileNav').classList.toggle('open');
-      };
-
-      // ناوبری
-      document.querySelectorAll('#mobileNav button').forEach(btn => {
-        btn.onclick = () => showSection(btn.dataset.section);
-      });
-
-      // TextEncoder / TextDecoder
-      const encoder = new TextEncoder();
-      const decoder = new TextDecoder();
-
-      // رمزگذاری
-      document.getElementById('encodeBtn').onclick = () => {
-        const txt = document.getElementById('encodeInput').value;
-        const bytes = encoder.encode(txt);
-        const enc = btoa(String.fromCharCode(...bytes));
-        document.getElementById('encodeResult').textContent = enc;
-        historyList.push('🔐 ' + enc);
-        updateHistory();
-      };
-
-      // رمزگشایی
-      document.getElementById('decodeBtn').onclick = () => {
-        const enc = document.getElementById('decodeInput').value;
-        try {
-          const str = atob(enc);
-          const arr = Uint8Array.from(str, c => c.charCodeAt(0));
-          const dec = decoder.decode(arr);
-          document.getElementById('decodeResult').textContent = dec;
-          historyList.push('🔓 ' + dec);
-          updateHistory();
-        } catch {
-          document.getElementById('decodeResult').textContent = 'متن نامعتبر است';
-        }
-      };
-
-      // حالت تاریک
-      document.getElementById('darkModeBtn').onclick = () => {
-        document.body.classList.toggle('dark');
-      };
-
-      // ساخت QR
-      document.getElementById('qrBtn').onclick = () => {
-        const data = document.getElementById('encodeResult').textContent;
-        if (!data) return alert('متنی برای ساخت QR نیست');
-        window.open(
-          `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(data)}&size=150x150`,
-          '_blank'
-        );
-      };
-
-      // پخش صوت
-      document.getElementById('soundBtn').onclick = () => {
-        new Audio(
-          'https://cdn.pixabay.com/download/audio/2022/03/15/audio_7c3b1b7b6e.mp3?filename=click-124467.mp3'
-        ).play();
-      };
-
-      // پاک‌سازی تاریخچه
-      document.getElementById('clearHistoryBtn').onclick = () => {
-        historyList = [];
-        updateHistory();
-      };
-
-      // ثبت Service Worker
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-          .catch(err => console.warn('Service Worker failed:', err));
+            rp: { name: "Parham Crypto" },
+            user: {
+              id: new Uint8Array(16),
+              name: "parham",
+              displayName: "Parham"
+            },
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+            authenticatorSelection: { authenticatorAttachment: "platform" },
+            timeout: 60000,
+            attestation: "none"
+          }
+        });
+        alert("بیومتریک فعال شد");
+      } catch (err) {
+        alert("خطا در فعال‌سازی بیومتریک: " + err.message);
       }
+    }
+
+    async function loginWithBiometric() {
+      if (!window.PublicKeyCredential) {
+        alert("بیومتریک در دسترس نیست");
+        return;
+      }
+      try {
+        await navigator.credentials.get({
+          publicKey: {
+            challenge: new Uint8Array(32),
+            timeout: 60000,
+            userVerification: "required"
+          }
+        });
+        logged = true;
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("mainSection").style.display = "block";
+      } catch (err) {
+        alert("ورود بیومتریک ناموفق: " + err.message);
+      }
+    }
+
+    document.getElementById("hamburgerBtn").addEventListener("click", () => {
+      document.getElementById("mobileNav").classList.toggle("open");
     });
+
+    function toggleSection(section) {
+      ["encodeSection", "decodeSection", "settings", "history"].forEach(id => {
+        document.getElementById(id).style.display = id === section ? "block" : "none";
+      });
+    }
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    function encodeText() {
+      const input = document.getElementById("encodeInput").value;
+      const bytes = encoder.encode(input);
+      const encoded = btoa(String.fromCharCode(...bytes));
+      document.getElementById("encodeResult").innerText = encoded;
+      history.push("🔐 " + encoded);
+      updateHistory();
+    }
+
+    function decodeText() {
+      const input = document.getElementById("decodeInput").value;
+      try {
+        const str = atob(input);
+        const arr = Uint8Array.from(str, c => c.charCodeAt(0));
+        const decoded = decoder.decode(arr);
+        document.getElementById("decodeResult").innerText = decoded;
+        history.push("🔓 " + decoded);
+        updateHistory();
+      } catch {
+        document.getElementById("decodeResult").innerText = "متن نامعتبر است";
+      }
+    }
+
+    function updateHistory() {
+      const list = document.getElementById("historyList");
+      list.innerHTML = "";
+      history.slice(-10).reverse().forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        list.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      history = [];
+      updateHistory();
+    }
+
+    function toggleDark() {
+      document.body.style.background =
+        document.body.style.background === "#333" ? "#f0f0f0" : "#333";
+      document.body.style.color =
+        document.body.style.color === "#fff" ? "#000" : "#fff";
+    }
+
+    function generateQR() {
+      const text = document.getElementById("encodeResult").innerText;
+      if (!text) return alert("متنی برای ساخت QR نیست");
+      window.open(`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(text)}&size=150x150`);
+    }
+
+    function playSound() {
+      const audio = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_7c3b1b7b6e.mp3?filename=click-124467.mp3");
+      audio.play();
+    }
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js");
+    }
   </script>
 </body>
 </html>
