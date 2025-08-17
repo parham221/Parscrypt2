@@ -5,7 +5,6 @@
   "display": "standalone",
   "background_color": "#f0f0f0",
   "theme_color": "#333333",
-  "description": "ابزار رمزگذاری و رمزگشایی متن فارسی با امکانات بیومتریک، QR، صوت و تاریخچه",
   "icons": [
     {
       "src": "icons/icon-192.png",
